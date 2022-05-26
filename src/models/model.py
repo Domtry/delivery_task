@@ -14,7 +14,7 @@ class Task(db.Document):
     amount_delivery = db.IntField(min_value=0, default=0)
     created_at = db.DateTimeField(default=datetime.now())
     update_at = db.DateTimeField(default=datetime.now())
-    delivery = db.ReferenceField('Delivery')
+    delivery_id = db.ReferenceField('Delivery')
     
     def __repr__(self) -> str:
         return f'Task => {self.title}' 
@@ -23,12 +23,11 @@ class Task(db.Document):
 class Delivery(db.Document):
     title = db.StringField(required=True)
     description = db.StringField()
-    shared_link = db.URLField(required=True)
     access_key = db.StringField(required=True)
     update_at = db.DateTimeField(required=True, default=datetime.now())
     created_at = db.DateTimeField(required=True, default=datetime.now())
     tasks = db.ReferenceField('Task', reverse_delete_rule=2)
-    user = db.ReferenceField('User')  
+    user_id = db.ReferenceField('User')  
     
     def __repr__(self) -> str:
         f'Delivery => {self.title}' 
@@ -38,7 +37,7 @@ class User(db.Document):
     email = db.EmailField(required=True, unique=True)
     username = db.StringField(required=True, unique=True)
     password = db.StringField(required=True, unique=True)
-    phone_number = db.StringField(required=True)
+    phone_number = db.StringField(required=True, unique=True)
     created_at = db.DateTimeField(required=True, default=datetime.now())
     update_at = db.DateTimeField(required=True, default=datetime.now())
     delivery = db.ReferenceField('Delivery', reverse_delete_rule=2)  
