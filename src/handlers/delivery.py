@@ -53,7 +53,7 @@ def get_one(delivery_id):
     }), HTTP_200_OK
     
     
-@delivery.get('/deliveryMan/<string:access_key>')
+@delivery.get('/delivery_man/<string:access_key>')
 def get_one_by_access_key(access_key):
     delivery_obj = Delivery.objects(access_key=access_key).first()
     
@@ -81,6 +81,9 @@ def create_delivery():
     
     if len(access_key) <= 3 or " " in access_key :
         return jsonify({'message': 'access key is not correctly'}), HTTP_302_FOUND
+    
+    if Delivery.objects(access_key=access_key).first() :
+        return jsonify({'message': 'access key istaken'}), HTTP_302_FOUND
     
     delivery_obj = Delivery(
         title=title, 

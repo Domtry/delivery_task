@@ -3,7 +3,11 @@ import os
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 
-from src.constants.http_status_codes import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_405_METHOD_NOT_ALLOWED, HTTP_500_ERROR_SERVER
+from src.constants.http_status_codes import (
+    HTTP_400_BAD_REQUEST, 
+    HTTP_404_NOT_FOUND, 
+    HTTP_405_METHOD_NOT_ALLOWED, 
+    HTTP_500_ERROR_SERVER)
 from src.models.model import db
 from src.handlers.user import user
 from src.handlers.task import task
@@ -42,6 +46,8 @@ def create_app(test_config=None):
     
     @app.errorhandler(HTTP_500_ERROR_SERVER)
     def handle_500(error):
-        return jsonify({'error': 'Somthing went wrong, we are working on it'}), HTTP_500_ERROR_SERVER
+        return jsonify({
+            'error': 'Somthing went wrong, we are working on it'
+            }), HTTP_500_ERROR_SERVER
     
     return app

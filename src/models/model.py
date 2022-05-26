@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import unique
 from flask_mongoengine import MongoEngine
 
 db = MongoEngine()
@@ -23,7 +24,7 @@ class Task(db.Document):
 class Delivery(db.Document):
     title = db.StringField(required=True)
     description = db.StringField()
-    access_key = db.StringField(required=True)
+    access_key = db.StringField(required=True, unique=True)
     update_at = db.DateTimeField(required=True, default=datetime.now())
     created_at = db.DateTimeField(required=True, default=datetime.now())
     tasks = db.ReferenceField('Task', reverse_delete_rule=2)

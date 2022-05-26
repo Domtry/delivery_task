@@ -10,7 +10,7 @@ from src.constants.http_status_codes import(
     HTTP_409_CONFLICT)
 
 from src.models.model import User
-user = Blueprint("user", __name__, url_prefix="/api/v1/auth")
+user = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
 @user.post('/register')
 def register():
@@ -89,7 +89,8 @@ def me():
     
     return jsonify({
         'email': user.email,
-        'username': user.username
+        'username': user.username,
+        'phone_number': user.phone_number
     }), HTTP_200_OK
     
     
