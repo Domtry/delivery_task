@@ -4,6 +4,8 @@ from src.constants.http_status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_
 from src.models.model import Delivery
 from flask_jwt_extended import (get_jwt_identity, jwt_required)
 
+from src.tools.tools import Tools
+
 delivery = Blueprint("delivery", __name__, url_prefix="/api/v1/delivery")
 
 @delivery.get('')
@@ -29,6 +31,8 @@ def get_all():
         delivery_list.append({
             'id': f'{delivery_item.id}',
             'title': delivery_item.title,
+            "sucure_key": delivery_item.access_key,
+            'total_amount': delivery_item.total_amount,
             'created_at': delivery_item.created_at,
             'user_id': current_user
         })
@@ -48,6 +52,8 @@ def get_one(delivery_id):
     return jsonify({
         'id': f'{delivery_obj.id}',
         'title': delivery_obj.title,
+        'sucure_key': delivery_obj.access_key,
+        'total_amount': delivery_obj.total_amount,
         'created_at': delivery_obj.created_at,
         'user_id': current_user
     }), HTTP_200_OK
@@ -73,17 +79,14 @@ def get_one_by_access_key(access_key):
 def create_delivery():
     current_user = get_jwt_identity()
     title = request.get_json().get('title', '')
-    access_key = request.get_json().get('access_key', '')
     description = request.get_json().get('description', '')
     
     if len(title) < 5:
         return jsonify({'message': 'title is not correctly'}), HTTP_302_FOUND
     
-    if len(access_key) <= 3 or " " in access_key :
-        return jsonify({'message': 'access key is not correctly'}), HTTP_302_FOUND
-    
-    if Delivery.objects(access_key=access_key).first() :
-        return jsonify({'message': 'access key istaken'}), HTTP_302_FOUND
+    access_key = Tools.generate_sucure_key()
+    while Delivery.objects(access_key=access_key).first() :
+        access_key = Tools.generate_sucure_key()
     
     delivery_obj = Delivery(
         title=title, 
@@ -116,19 +119,14 @@ def update_delivery(delivery_id):
 @jwt_required()
 def changeç_access_key(delivery_id):
     current_user = get_jwt_identity()
-    last_key = request.get_json().get('last_key', '')
-    new_key = request.get_json().get('new_key', '')
-    
     current_delivery = Delivery.objects(user_id=current_user, id=delivery_id).first()
     
     if not current_delivery:
         return jsonify({"message": "delivery has not found"}), HTTP_404_NOT_FOUND
     
-    if current_delivery.access_key not in last_key:
-        return jsonify({"message": "last password is not correctly. Please try egain"}), HTTP_302_FOUND
-    
-    if last_key in new_key:
-        return jsonify({"message": "Please change you new access key"}), HTTP_302_FOUND
+    access_key = Tools.generate_sucure_key()
+    while Delivery.objects(access_key=access_key).first() :
+        access_key = Tools.generate_sucure_key()
         
-    current_delivery.update(access_key=new_key, update_at=datetime.now())
+    current_delivery.update(access_key=access_key, update_at=datetime.now())
     return jsonify({"message": "delivery access key has been update"}), HTTP_200_OK

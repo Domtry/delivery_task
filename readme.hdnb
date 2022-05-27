@@ -1,3 +1,21 @@
 ```py3
+import random
+ascii_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+digits = '0123456789'
+alph_num = ascii_uppercase+digits
 
+code = ""
+
+for i in range(10) :
+    pos = random.randint(0, len(alph_num)-1)
+    key = alph_num[pos]
+    code = code+key
+    
+    if len(code) == 3 :
+        code = f'{code}-'
+        
+    if len(code) == 7 :
+        code = f'{code}-'
+    
+print(code)
 ```

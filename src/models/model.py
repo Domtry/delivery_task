@@ -1,5 +1,5 @@
 from datetime import datetime
-from enum import unique
+from bson import json_util
 from flask_mongoengine import MongoEngine
 
 db = MongoEngine()
@@ -18,12 +18,15 @@ class Task(db.Document):
     delivery_id = db.ReferenceField('Delivery')
     
     def __repr__(self) -> str:
-        return f'Task => {self.title}' 
+        return f'Task => {self.title}'
+    
+    def get_delivery_id(self)->str:
+        return self.delivery_id
         
-
 class Delivery(db.Document):
     title = db.StringField(required=True)
     description = db.StringField()
+    total_amount = db.IntField(min_value=0, default=0)
     access_key = db.StringField(required=True, unique=True)
     update_at = db.DateTimeField(required=True, default=datetime.now())
     created_at = db.DateTimeField(required=True, default=datetime.now())
@@ -31,7 +34,7 @@ class Delivery(db.Document):
     user_id = db.ReferenceField('User')  
     
     def __repr__(self) -> str:
-        f'Delivery => {self.title}' 
+        f'Delivery => {self.title}'
      
 
 class User(db.Document):

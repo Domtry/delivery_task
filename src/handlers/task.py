@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, request
-from src.constants.http_status_codes import HTTP_200_OK, HTTP_302_FOUND, HTTP_404_NOT_FOUND
+from src.constants.http_status_codes import (
+    HTTP_200_OK, HTTP_201_CREATED, HTTP_302_FOUND, HTTP_404_NOT_FOUND)
 from src.models.model import Task, Delivery
 from flask_jwt_extended import (get_jwt_identity, jwt_required)
 
@@ -21,23 +22,32 @@ def get_one_task(task_id):
         'client_phone': task_obj.client_phone,
         'description': task_obj.description,
         'status': task_obj.status,
+        'delivery_id': f'{task_obj.delivery_id}',
         'amount_delivery': task_obj.amount_delivery,
         'created_at': task_obj.created_at,
     }), HTTP_200_OK
 
     
-@task.get('/completed/<string:task_id>')
-def toggle_task_status(task_id):
+@task.get('/completed/<string:secure_key>/<string:task_id>')
+def toggle_task_status(secure_key, task_id):
     task_status = False    
     task_obj = Task.objects(id=task_id).first()
     
     if not task_obj :
         return jsonify({'message': 'task is not found'}), HTTP_302_FOUND
     
+    current_delivery = Delivery.objects(access_key=secure_key).first()
+    current_amount = int(current_delivery.total_amount)
+    print(current_amount)
     if task_obj.status == False :
         task_status = True
-
+        current_amount = current_amount + task_obj.amount_delivery
+    else :
+        current_amount = current_amount - task_obj.amount_delivery
+    
     task_obj.update(status=task_status, update_at=datetime.now())
+    current_delivery.update(total_amount=current_amount)
+    
     return jsonify({
         'id': f'{task_obj.id}',
         'title': task_obj.title,
@@ -78,7 +88,9 @@ def create_task():
     if len(client_phone) <= 8:
         return jsonify({'message': 'phone number is not correctly'}), HTTP_302_FOUND
     
-    if not Delivery.objects(user_id=current_user, id=delivery_id).first() :
+    delivery_obj = Delivery.objects(user_id=current_user, id=delivery_id).first()
+    
+    if not delivery_obj :
         return jsonify({'message': 'delivery is not found'}), HTTP_302_FOUND
     
     task_obj = Task(
@@ -88,7 +100,7 @@ def create_task():
         description=description,
         client_phone=client_phone,
         amount_delivery=amount_delivery,
-        delivery_id=delivery_id
+        delivery_id=delivery_obj
         )
     task_obj.save()
     return jsonify({'message': 'task has been created ... '}), HTTP_201_CREATED
@@ -167,6 +179,7 @@ def get_all_task(delivery_access_key):
             'client_phone': task_item.client_phone,
             'description': task_item.description,
             'status': task_item.status,
+            'delivery_id': f'{delivery_obj.id}',
             'amount_delivery': task_item.amount_delivery,
             'created_at': task_item.created_at,
         })
