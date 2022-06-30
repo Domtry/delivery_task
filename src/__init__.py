@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, jsonify
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
 from src.constants.http_status_codes import (
@@ -13,8 +14,10 @@ from src.handlers.user import user
 from src.handlers.task import task
 from src.handlers.delivery import delivery
 
+
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+    cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
     
     if test_config is None:
         app.config.from_mapping(

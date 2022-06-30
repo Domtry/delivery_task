@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, request
+from flask_cors import cross_origin
 from src.constants.http_status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_302_FOUND, HTTP_404_NOT_FOUND
 from src.models.model import Delivery
 from flask_jwt_extended import (get_jwt_identity, jwt_required)
@@ -10,6 +11,7 @@ delivery = Blueprint("delivery", __name__, url_prefix="/api/v1/delivery")
 
 @delivery.get('')
 @jwt_required()
+@cross_origin()
 def get_all():
     current_user = get_jwt_identity()
     page = request.args.get('page', 1, type=int)
@@ -42,6 +44,7 @@ def get_all():
 
 @delivery.get('/<string:delivery_id>')
 @jwt_required()
+@cross_origin()
 def get_one(delivery_id):
     current_user = get_jwt_identity()
     delivery_obj = Delivery.objects(user_id=current_user, id=delivery_id).first()
@@ -60,6 +63,7 @@ def get_one(delivery_id):
     
     
 @delivery.get('/delivery_man/<string:access_key>')
+@cross_origin()
 def get_one_by_access_key(access_key):
     delivery_obj = Delivery.objects(access_key=access_key).first()
     
@@ -76,6 +80,7 @@ def get_one_by_access_key(access_key):
 
 @delivery.post('')
 @jwt_required()
+@cross_origin()
 def create_delivery():
     current_user = get_jwt_identity()
     title = request.get_json().get('title', '')
@@ -101,6 +106,7 @@ def create_delivery():
 @delivery.put('<string:delivery_id>')
 @delivery.patch('<string:delivery_id>')
 @jwt_required()
+@cross_origin()
 def update_delivery(delivery_id):
     current_user = get_jwt_identity()
     current_delivery = Delivery.objects(user_id=current_user, id=delivery_id).first()
@@ -117,6 +123,7 @@ def update_delivery(delivery_id):
 
 @delivery.put('/secure/<string:delivery_id>')
 @jwt_required()
+@cross_origin()
 def changeç_access_key(delivery_id):
     current_user = get_jwt_identity()
     current_delivery = Delivery.objects(user_id=current_user, id=delivery_id).first()

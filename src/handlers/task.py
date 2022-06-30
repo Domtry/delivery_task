@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, request
+from flask_cors import cross_origin
 from src.constants.http_status_codes import (
     HTTP_200_OK, HTTP_201_CREATED, HTTP_302_FOUND, HTTP_404_NOT_FOUND)
 from src.models.model import Task, Delivery
@@ -8,6 +9,7 @@ from flask_jwt_extended import (get_jwt_identity, jwt_required)
 task = Blueprint("tasks", __name__, url_prefix="/api/v1/tasks")
 
 @task.get('/<string:task_id>')
+@cross_origin()
 def get_one_task(task_id):
   
     task_obj = Task.objects(id=task_id).first()
@@ -29,6 +31,7 @@ def get_one_task(task_id):
 
     
 @task.get('/completed/<string:secure_key>/<string:task_id>')
+@cross_origin()
 def toggle_task_status(secure_key, task_id):
     task_status = False    
     task_obj = Task.objects(id=task_id).first()
@@ -63,6 +66,7 @@ def toggle_task_status(secure_key, task_id):
     
 @task.post('/')
 @jwt_required()
+@cross_origin()
 def create_task():
     current_user = get_jwt_identity()
     delivery_id = request.get_json().get('delivery_id', '')
@@ -108,6 +112,7 @@ def create_task():
 
 @task.put('/<string:task_id>')
 @jwt_required()
+@cross_origin()
 def update_task(task_id):
     delivery_id = request.get_json().get('delivery_id', '')
     title = request.get_json().get('title', '')
@@ -151,6 +156,7 @@ def update_task(task_id):
 
 
 @task.get('/delivery/<string:delivery_access_key>')
+@cross_origin()
 def get_all_task(delivery_access_key):
     
     page = request.args.get('page', 1, type=int)

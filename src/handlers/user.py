@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_cors import cross_origin
 from werkzeug.security import (check_password_hash, generate_password_hash)
 import validators
 from flask_jwt_extended import (
@@ -13,6 +14,7 @@ from src.models.model import User
 user = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
 @user.post('/register')
+@cross_origin()
 def register():
     username = request.json['username']
     email = request.json['email']
@@ -55,6 +57,7 @@ def register():
 
 
 @user.post('/login')
+@cross_origin()
 def login():
     email = request.json.get('email', '')
     password = request.json.get('password', '')
@@ -82,6 +85,7 @@ def login():
 
 @user.get('/me')
 @jwt_required()
+@cross_origin()
 def me():
     user_id = get_jwt_identity()
 
@@ -96,6 +100,7 @@ def me():
     
 @user.get('/token/refresh')
 @jwt_required(refresh=True)
+@cross_origin()
 def refresh_user_token():
     identity = get_jwt_identity()
     access = create_access_token(identity=identity)
