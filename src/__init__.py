@@ -13,6 +13,7 @@ from src.models.model import db
 from src.handlers.user import user
 from src.handlers.task import task
 from src.handlers.delivery import delivery
+from datetime import timedelta 
 
 
 def create_app(test_config=None):
@@ -24,7 +25,9 @@ def create_app(test_config=None):
             FLASK_ENV = os.environ.get('FLASK_ENV'),
             SECRET_KEY = os.environ.get('SECRET_KEY'),
             JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY'),
-            MONGODB_DATABASE = os.environ.get('MONGODB_DATABASE_URI'))
+            MONGODB_DATABASE = os.environ.get('MONGODB_DATABASE_URI'),
+            JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours= int(os.environ.get('JWT_ACCESS_TOKEN_EXPIRES'))),
+            JWT_REFRESH_TOKEN_EXPIRES = timedelta(days= int(os.environ.get('JWT_REFRESH_TOKEN_EXPIRES'))))
     else:
         app.config.from_mapping(test_config)
     
